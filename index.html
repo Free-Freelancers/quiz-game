@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quiz Quest - Start Your Adventure</title>
+    <link rel="stylesheet" href="/CSS/style.css">
+    <link rel="stylesheet" href="/CSS/start.css">
+</head>
+<body>
+    <div class="container">
+        <div class="content">
+            <h1>Quiz Quest</h1>
+             <div class="btn-container">
+                <input placeholder="ENTER USERNAME" id="input-user" name="username">
+                <?php if (isset($_GET['error'])): ?>
+                    <div class="error-message"><?php echo isset($_GET('error')); ?></div>
+                <?php endif; ?>
+                <a href="/HTML/lobby.html"><div class="btn" style="width: 300px; margin-bottom: 20px;"><input type="button" name="action" value="host"></div></a>
+                <input placeholder="ENTER ROOM ID" id="input-room-id" name="room_id">
+                <?php if (isset($_GET['error'])): ?>
+                    <div class="error-message"><?php echo isset($_GET('error')); ?></div>
+                <?php endif; ?>
+                <a href="/HTML/lobby.html"><div class="btn" style="width: 300px;"><input type="button" name="action" value="join"></div></a>
+            </div>   
+        </div>
+    </div>
+</body>
+</html>

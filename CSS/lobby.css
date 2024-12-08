@@ -1,0 +1,85 @@
+
+
+  
+  
+  
+
+  
+  
+  .room-info {
+    text-align: center;
+   justify-content:center;
+   align-items: center;
+   display: flex;
+  }
+
+  .copy-icon{
+    cursor: pointer;
+    
+  }
+  
+   
+  
+  .player-list {
+    background-color: #e5e5e5;
+    border-radius: 10px;
+    padding: 30px 20px 20px 40px;
+    margin-bottom: 45px;
+    height: fit-content;
+    width: 85%;
+    margin: 0 auto;
+  }
+  
+  .player {
+    display: flex;
+    align-items: center;
+    margin-bottom: 20px;
+  }
+  
+  .player-avatar {
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    margin-right: 10px;
+    position: relative;
+  }
+  
+  
+
+
+  .player-name1{
+    color: #b02a2a;
+  }
+
+  .player-name2{
+    color:#28cf29;
+  }
+  .player-name3{
+    color:#0f7cb3;
+  }
+  .player-name4{
+    color: purple;
+  }
+
+  
+  .start-timer {
+ 
+    margin-top: 45px;
+  }
+  
+  .start-timer p {
+    
+    font-size: 18px;
+    font-weight: bold;
+    text-align: center;
+  }
+  
+  .timer {
+    font-size: 24px;
+  }
+  
+  .buttons {
+    display: flex;
+    justify-content: space-around;
+  }
+  

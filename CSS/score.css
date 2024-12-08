@@ -1,0 +1,78 @@
+.player-rank {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.game-header {
+    display: flex;
+    justify-content: end;
+    align-items: center;
+
+}
+
+.right-section {
+    display: flex;
+    align-items: center;
+}
+
+
+.player {
+
+
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+
+}
+
+.player .score {
+
+    display: flex;
+    align-items: center;
+    border-top: 1px solid #000000;
+
+}
+
+.player .score:last-of-type {
+    border-bottom: 1px solid #000000;
+}
+
+.player .score h3 {
+
+    padding: 15px 20px;
+    margin-right: 30px;
+    border-right: 1px solid #000000;
+}
+
+.score span {
+    font-size: 22px;
+}
+
+.next {
+    display: flex;
+    justify-content: flex-end;
+    margin-right: 50px;
+    margin-top: 20px;
+}
+
+.next a {
+    display: block;
+    padding: 10px 30px;
+    border-radius: 10px;
+    background-color: #AA38D7;
+    color: white;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+}
+
+
+.container-ground {
+    background-color: #cccbca;
+    margin-top: 50px;
+    border-radius: 20px;
+    padding: 50px;
+    display: flex;
+    flex-direction: column;
+
+}

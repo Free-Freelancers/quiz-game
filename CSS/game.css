@@ -1,0 +1,117 @@
+
+.game-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+
+}
+
+.right-section {
+    display: flex;
+    align-items: center;
+}
+
+
+.players-section {
+    display: flex;
+    justify-content: space-between;
+    width: 70%;
+    margin: auto;
+}
+
+.left,
+.right {
+    display: flex;
+    flex-direction: column;
+
+}
+
+.player-score {
+    display: flex;
+    gap: 10px;
+}
+
+
+
+.player-info {
+    flex: 1;
+}
+
+.player-bar {
+    height: 20px;
+    width: 200px;
+    background-color: white;
+    border-radius: 5px;
+}
+
+.player-health {
+    width: 50%;
+    height: 100%;
+    background-color: green;
+}
+
+.question-section {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+}
+
+.question-title-section {
+    width: 80%;
+    height: 90px;
+    background-color: #cccbca;
+    border-radius: 20px 20px 0 0;
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+
+}
+
+.time-line{
+    background-color: red;
+    width: 80%;
+    height: 5px;
+}
+
+.question-type {
+    margin: auto;
+}
+
+.question {
+    margin-top: 20px;
+    padding: 20px;
+    width: 80%;
+    height: 250px;
+    background-color: #cccbca;
+    border-radius: 20px;
+    display: flex;
+}
+
+.MCQ-section {
+    display: flex;
+   margin-top: 20px;
+   width: 80%;
+    justify-content: space-between;
+    
+}
+
+.MCQ-section div {
+   margin-bottom: 20px;
+   flex-direction: column; 
+  
+}
+
+
+.divElement{
+
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    -webkit-transform: translate(-50%, -50%);
+    transform: translate(-50%, -50%);
+    background-color: black;
+}
+
+
+

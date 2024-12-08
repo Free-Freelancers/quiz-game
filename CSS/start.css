@@ -1,0 +1,35 @@
+:root{
+    --blue-color:#337ab7;
+}
+.btn-container{
+    display: flex;
+    flex-direction: column;
+    
+}
+
+#input-user{
+    height: 70px;
+    width:300px;
+    border-color: var(--blue-color);
+    border-style: solid;
+    border-radius: 20px;
+    border-width: 4px;
+    margin: 20px 0;
+}
+
+#input-user::placeholder{
+    text-align: center;
+}
+
+
+.content{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    -webkit-transform: translate(-50%, -50%);
+    transform: translate(-50%, -50%);
+}
