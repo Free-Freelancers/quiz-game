@@ -1,14 +1,13 @@
 -- phpMyAdmin SQL Dump
--- version 4.9.0.1
+-- version 5.2.1
 -- https://www.phpmyadmin.net/
 --
--- Host: sql100.infinityfree.com
--- Generation Time: Dec 08, 2024 at 09:14 AM
--- Server version: 10.6.19-MariaDB
--- PHP Version: 7.2.22
+-- Host: localhost
+-- Generation Time: Dec 11, 2024 at 12:52 PM
+-- Server version: 10.4.32-MariaDB
+-- PHP Version: 8.1.25
 
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
-SET AUTOCOMMIT = 0;
 START TRANSACTION;
 SET time_zone = "+00:00";
 
@@ -19,7 +18,7 @@ SET time_zone = "+00:00";
 /*!40101 SET NAMES utf8mb4 */;
 
 --
--- Database: `if0_37869560_user_rooms`
+-- Database: `quiz_game`
 --
 
 -- --------------------------------------------------------
@@ -279,17 +278,13 @@ INSERT INTO `questions` (`question_id`, `category_id`, `question_text`, `points`
 --
 
 CREATE TABLE `rooms` (
-  `room_id` int(11) NOT NULL
+  `room_id` int(11) NOT NULL,
+  `question_id` int(11) NOT NULL DEFAULT 1,
+  `question_count` int(11) NOT NULL DEFAULT 10,
+  `question_time` int(11) NOT NULL DEFAULT 30,
+  `user_count` int(11) NOT NULL DEFAULT 0,
+  `start_time` time DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-
---
--- Dumping data for table `rooms`
---
-
-INSERT INTO `rooms` (`room_id`) VALUES
-(3),
-(4),
-(5);
 
 -- --------------------------------------------------------
 
@@ -300,7 +295,9 @@ INSERT INTO `rooms` (`room_id`) VALUES
 CREATE TABLE `users` (
   `user_id` int(11) NOT NULL,
   `username` varchar(50) NOT NULL,
-  `room_id` int(11) NOT NULL
+  `room_id` int(11) NOT NULL,
+  `score` int(11) NOT NULL DEFAULT 0,
+  `ready` tinyint(1) NOT NULL DEFAULT 0
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
@@ -331,7 +328,8 @@ ALTER TABLE `questions`
 -- Indexes for table `rooms`
 --
 ALTER TABLE `rooms`
-  ADD PRIMARY KEY (`room_id`);
+  ADD PRIMARY KEY (`room_id`),
+  ADD KEY `fk_question_id` (`question_id`);
 
 --
 -- Indexes for table `users`
@@ -367,13 +365,13 @@ ALTER TABLE `questions`
 -- AUTO_INCREMENT for table `rooms`
 --
 ALTER TABLE `rooms`
-  MODIFY `room_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
+  MODIFY `room_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=148;
 
 --
 -- AUTO_INCREMENT for table `users`
 --
 ALTER TABLE `users`
-  MODIFY `user_id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `user_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=163;
 
 --
 -- Constraints for dumped tables
@@ -390,6 +388,12 @@ ALTER TABLE `answers`
 --
 ALTER TABLE `questions`
   ADD CONSTRAINT `questions_ibfk_1` FOREIGN KEY (`category_id`) REFERENCES `categories` (`category_id`);
+
+--
+-- Constraints for table `rooms`
+--
+ALTER TABLE `rooms`
+  ADD CONSTRAINT `fk_question_id` FOREIGN KEY (`question_id`) REFERENCES `questions` (`question_id`);
 
 --
 -- Constraints for table `users`

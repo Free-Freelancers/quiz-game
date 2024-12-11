@@ -2,10 +2,11 @@
 <html lang="en">
 
 <head>
+    <base href="/quiz-game/">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="/CSS/style.css">
-    <link rel="stylesheet" href="/CSS/score.css">
+    <link rel="stylesheet" href="CSS/style.css">
+    <link rel="stylesheet" href="CSS/score.css">
 
     <title>Scoreboard - Who's Winning?</title>
 </head>
@@ -15,7 +16,7 @@
         <div class="game-header">
             <div class="right-section">
                 <h3>USERNAME</h3>
-                <div class="avatar"><img src="/IMG/images.jpg"></div>
+                <div class="avatar"><img src="IMG/images.jpg"></div>
             </div>
         </div>
 
@@ -43,7 +44,7 @@
 
             </div>
 
-            <a href="lobby.html"><div class="btn" style="width: fit-content; justify-self: end;">Next</div></a>
+            <a href="lobby.php"><div class="btn" style="width: fit-content; justify-self: end;">Next</div></a>
 
                 
         </div>
