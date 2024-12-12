@@ -2,11 +2,9 @@
 
 $base = '/quiz-game/';
 
-include 'server-side/api.php';
-include 'server-side/db.php';
-include 'server-side/session.php';
-
-$error = '';
+require 'server-side/api.php';
+require 'server-side/db.php';
+require 'server-side/session.php';
 
 // request to join or host
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
@@ -27,20 +25,17 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
        }
 
        // succeeded to join or host
-       if (!isset($ex)) {
-          session_regenerate_id();
-          $_SESSION["username"] = $username;
-          $_SESSION['room_id'] = $room_id;
-          $_SESSION["active"] = TRUE;
-          $_SESSION["score"] = 0;
-          sendJSResponse(['status' => 'transfer', 'url' => $base . 'pages/lobby.php']);
-          exit;
-       }
+       session_regenerate_id();
+       $_SESSION['username'] = $username;
+       $_SESSION['room_id'] = $room_id;
+       $_SESSION['active'] = TRUE;
+       $_SESSION['score'] = 0;
+       sendJSResponse(['status' => 'transfer', 'url' => $base . 'pages/lobby.php']);
+       exit;
 
    // error message
     } catch (Exception $ex) {
-       $error = $ex->getMessage();
-       sendJSResponse(['status' => 'error', 'message' => $error]);
+       sendJSResponse(['status' => 'error', 'message' => $ex->getMessage()]);
        exit;
     }
 }

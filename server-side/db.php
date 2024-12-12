@@ -28,7 +28,7 @@ try {
         }
     }
 } catch (Exception $ex) {
-    $error = $ex->getMessage();
+    die("Connection failed: " . $ex->getMessage());
 }
 ?>
 

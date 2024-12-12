@@ -3,8 +3,8 @@ session_start();
 
 $base = '/quiz-game/';
 
-include 'api.php';
-include 'db.php';
+require 'api.php';
+require 'db.php';
 
 if (isset($_SESSION['username']) && isset($_SESSION['room_id'])) {
     try {

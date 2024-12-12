@@ -12,7 +12,7 @@ function checkQuery ($qur) {
     global $query_result;
     $query_result = $conn->query($qur);
     if (!$query_result) {
-        throw new Exception("Error: " . $qur . "<br>" . $conn->error);
+        die("Error: " . $qur . "<br>" . $conn->error);
     }
     return $query_result;
 }
