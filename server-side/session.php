@@ -36,7 +36,7 @@ function checkUsers () {
                }
            }
         }
-        $inactiveLimit = 10; // 10 seconds
+        $inactiveLimit = 1800; // 30 minutes
         $res = checkQuery("SELECT * FROM users");
         if ($res->num_rows > 0) {
             while ($user = $res->fetch_assoc()) {

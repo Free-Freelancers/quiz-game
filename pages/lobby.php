@@ -17,14 +17,9 @@ if ($row = $query_result->fetch_assoc()) {
 
 // if timer started
 if (!empty($_SESSION['start_time'])) {
-        error_log('llolololo');
     if (time() > strtotime($_SESSION['start_time'])) {
         // game already started (too late)
-        if ($_SESSION['playing']) {
-            header('Location: ' . $base . 'page/game.php');
-        } else {
             header('Location: ' . $base . 'server-side/logout.php');
-        }
         die();
     }
 }
@@ -67,15 +62,15 @@ if ($_SERVER['REQUEST_METHOD'] == "POST") {
         // timer and players checker
         } else if (isset($data['update'])) { 
 
-             // fill users array with player names
-             checkQuery("SELECT * FROM users WHERE room_id = {$_SESSION['room_id']}");
-             $users = array();
-             if ($query_result->num_rows > 0)
-                 while ($row = $query_result->fetch_assoc()) 
-                     array_push($users, $row['username']);
+            // fill users array with player names
+            checkQuery("SELECT * FROM users WHERE room_id = {$_SESSION['room_id']}");
+            $users = array();
+            if ($query_result->num_rows > 0)
+               while ($row = $query_result->fetch_assoc()) 
+                   array_push($users, $row['username']);
 
-             // check if room start time is set and put it in start_time session variable
-             $timer_started = checkAllReady();
+            // check if room start time is set and put it in start_time session variable
+            $timer_started = checkAllReady();
 
             sendJSResponse(['timerStarted' => $timer_started, 'startTime' => $_SESSION['start_time'],
                              'url' => $base . 'pages/game.php', 'users' => $users]);
@@ -184,7 +179,10 @@ function checkAllReady () {
                 console.log(new Date(deadline + 'Z').getTime());
 
                 const interval = setInterval(async function () {
-                    if (!monitorTimeCalled) return;
+                    if (!monitorTimeCalled) {
+                        clearInterval(interval);
+                        return;
+                    }
                     const futureTime = new Date(deadline + 'Z').getTime();
                     const now = new Date().getTime();
                     const remainingTime = futureTime - now;
@@ -202,7 +200,7 @@ function checkAllReady () {
                     } else if (remainingTime > 0) {
                         document.getElementsByClassName("timer")[0].innerText = "Good Luck!";
                     } else {
-                        const res = await sendData({'play':true }, '<?php echo htmlspecialchars($_SERVER["PHP_SELF"]); ?>');
+                        const res = await sendData({'play':true}, '<?php echo htmlspecialchars($_SERVER["PHP_SELF"]); ?>');
                         console.log(res.done);
                         window.location.href = go_to;
                         return;
@@ -217,9 +215,9 @@ function checkAllReady () {
                 const playerList = document.getElementsByClassName('player-list')[0];
                 playerList.innerHTML = '';
                 for (let i = 0; i < res.users.length; i++) {
-                    let n = document.createElement('div') ;
+                    let n = document.createElement('div');
                     n.className.concat("player") ;
-                    n.innerHTML = '<div class="avatar red" style="color: ' + colors[i] + '"><img src="IMG/images.jpg"></div><span class="player-name' + (i + 1) + '">' + res.users[i] + '</span>' ;
+                    n.innerHTML = '<div class="avatar red" style="color: ' + colors[i] + '"><img src="IMG/images.jpg"></div><span class="player-name' + (i + 1) + '">' + res.users[i] + '</span>';
                     playerList.appendChild(n);
                 }
 

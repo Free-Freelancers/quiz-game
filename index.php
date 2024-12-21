@@ -22,8 +22,19 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
        // join button
        if ($data['action'] == 'join') {
-           error_log("join");
-           $room_id = $data['room_id'];
+            $room_id = $data['room_id'];
+            error_log("join");
+            $start_time = '';
+            $res = checkQuery("SELECT * FROM rooms WHERE start_time IS NOT NULL AND room_id = " . $room_id);
+            if ($row = $res->fetch_assoc()) {
+                $start_time = $row['start_time'];
+            }
+            error_log(time());
+            error_log(strtotime($start_time));
+            error_log(($start_time));
+            if (!empty($start_time) && time() > strtotime($start_time)) {
+                throw new Exception ('game already started (too late)');
+            }
            joinRoom($username, $room_id);
 
        // host button
