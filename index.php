@@ -6,6 +6,12 @@ require 'server-side/api.php';
 require 'server-side/db.php';
 require 'server-side/session.php';
 
+if (isset($_SESSION['username'])) {
+    error_log("{$_SERVER['PHP_SELF']} with username : {$_SESSION['username']}");
+} else {
+    error_log("{$_SERVER['PHP_SELF']} with username : none");
+}
+
 // request to join or host
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     try {
@@ -30,6 +36,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
        $_SESSION['room_id'] = $room_id;
        $_SESSION['active'] = TRUE;
        $_SESSION['score'] = 0;
+       error_log("index to lobby");
        sendJSResponse(['status' => 'transfer', 'url' => $base . 'pages/lobby.php']);
        exit;
 
@@ -58,11 +65,11 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 <h1>Quiz Quest</h1>
                  <div class="btn-container">
                     <input placeholder="ENTER USERNAME" id="input-user" name="username">
-                    <div class="btn submit" style="width: 300px; margin-bottom: 20px;">
+                    <div class="btn submit" style="width: 300px; margin-bottom: 20px;" onclick="host()">
                         HOST
                     </div>
                     <input placeholder="ENTER ROOM ID" id="input-user" name="room_id">
-                    <div class="btn submit" style="width: 300px;">
+                    <div class="btn submit" style="width: 300px;" onclick="join()">
                         JOIN
                     </div>
                     <div class="error-message" id="error-message"></div>
@@ -113,10 +120,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             } else if (res.status === 'transfer') {
                 window.location.href = res.url;
             }
-        }
-        window.onload = function() {
-            document.getElementsByClassName("submit")[0].addEventListener("click", () => { host(); });
-            document.getElementsByClassName("submit")[1].addEventListener("click", () => { join(); });
         }
     </script>
     </body>

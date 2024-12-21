@@ -6,36 +6,56 @@ session_start();
 error_reporting(E_ALL); // Report all types of errors
 ini_set('display_errors', 1); // Display errors in the browser
 
-// start or resume the session
-if (!isset($_SESSION['last_activity'])) {
-    $_SESSION['last_activity'] = time();
+if (isset($_SESSION['username'])) {
+error_log ($_SESSION['username']);
+}
+// lost in the time and space
+if ((isset($_SESSION['username']) && isset($_SESSION['room_id'])) ^ basename($_SERVER['SCRIPT_NAME']) != 'index.php') {
+    header ("Location: {$base}server-side/logout.php");
+    error_log ("Location: {$base}server-side/logout.php");
+    die();
 }
 
-// extreme double triple checking 
-$good_to_go = false;
-if (isset($_SESSION['username']) && isset($_SESSION['room_id'])) {
-    try {
-        // confirming the user is not just a lost soul in this website
-        if (inRoom($_SESSION['username'], $_SESSION['room_id']))
-            $good_to_go = true;
-    } catch (Exception $ex) { }
-    if (!$good_to_go) // DUCK OFF
-    {
-           header ('Location: ' . $base . 'server-side/logout.php');
+try {
+    checkUsers();
+
+    // confirming the user is not just a lost soul in this website
+    if (isset($_SESSION['username'])) {
+        if (!inRoom($_SESSION['username'], $_SESSION['room_id'])) { // DUCK OFF
+    error_log ("Location: {$base}server-side/logout.php");
+           header ("Location: {$base}server-side/logout.php");
            die();
+        }
     }
-} else if (basename($_SERVER['SCRIPT_NAME']) == 'index.php') { // if user is homeless and is left on the index.php
-    // do nothing :)
-} else { 
-    // send them flying
-    header ('Location: ' . $base . 'server-side/logout.php');
-    die();
-}
+} catch (Exception $ex) { }
 
-$inactiveLimit = 1200; // 20 minutes
-if (isset($_SESSION['last_activity']) && (time() - $_SESSION['last_activity']) > $inactiveLimit) {
-    header('Location: ' . $base . 'server-side/logout.php');
-    die();
+function checkUsers () {
+    try {
+        if (isset($_SESSION['username']) && inRoom($_SESSION['username'], $_SESSION['room_id'])) { 
+            checkQuery("UPDATE users SET last_active = CURRENT_TIMESTAMP() WHERE room_id = {$_SESSION['room_id']} AND username = \"{$_SESSION['username']}\"");
+        }
+        $inactiveLimit = 10; // 10 seconds
+        $res = checkQuery("SELECT * FROM users");
+        if ($res->num_rows > 0) {
+            while ($user = $res->fetch_assoc()) {
+                $last_activity = $user['last_active'];
+                if (isset($last_activity) && (time() - strtotime($last_activity)) > $inactiveLimit) {
+                    leaveRoom($user['username']);
+                }
+            }
+        }
+
+        // cleanup rooms
+        $res = checkQuery("SELECT * FROM rooms");
+        if ($res->num_rows > 0) {
+            while ($row = $res->fetch_assoc()) {
+                if ($row['user_count'] == 0)
+                    deleteRoom($row['room_id']);
+            }
+        }
+    } catch (Exception $ex) {
+        die("Connection failed: " . $ex->getMessage());
+    }
 }
 
 ?>

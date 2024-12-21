@@ -16,6 +16,7 @@ async function sendData(data, url) {
         return result;
     } catch (error) {
         displayError(error);
+        return null;
     }
 }
 

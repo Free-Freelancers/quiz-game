@@ -1,0 +1,1 @@
+.dotfiles-2/to-stow/bash/.bashrc

@@ -93,7 +93,7 @@ function joinRoom ($username, $room_id) {
     }
     
     checkQuery("INSERT INTO users (username, room_id) VALUES ('$username', '$room_id')");
-    checkQuery("UPDATE rooms SET user_count = user_count + 1 WHERE room_id = '$room_id'");
+    checkQuery("UPDATE rooms SET user_count = user_count + 1, start_time = NULL WHERE room_id = '$room_id'");
 }
 
 function hostRoom ($username) {
@@ -120,7 +120,6 @@ function leaveRoom ($username) {
     }
 
     checkQuery("DELETE FROM users WHERE username = '$username'");
-    checkQuery("UPDATE rooms SET user_count = user_count - 1 WHERE room_id = '$room_id'");
 }
 
 function setReadyUser ($username) {
@@ -132,13 +131,6 @@ function setReadyUser ($username) {
     checkQuery("UPDATE users SET ready = true WHERE username = '$username'");
     checkQuery("SELECT * FROM users WHERE username = '$username'");
     $user = $query_result->fetch_assoc();
-    checkQuery("SELECT * FROM users WHERE room_id = " . $user['room_id'] . " AND ready = false");
-    if ($query_result->num_rows == 0) {
-        error_log("yeay");
-        checkQuery("UPDATE rooms SET start_time = CURRENT_TIMESTAMP() + INTERVAL 30 SECOND WHERE room_id = " . $user['room_id']);
-        return true;
-    }
-    return false;
 }
 
 function readyRoom ($room_id) {
@@ -148,9 +140,16 @@ function readyRoom ($room_id) {
 
     checkQuery("SELECT * FROM users WHERE room_id = '$room_id' AND ready = false");
     if ($query_result->num_rows == 0) {
+        error_log("yeay");
+        checkQuery("SELECT * FROM rooms WHERE room_id = '$room_id'");
+        if ($query_result->fetch_assoc()['start_time'] == NULL) {
+            checkQuery("UPDATE rooms SET start_time = CURRENT_TIMESTAMP() + INTERVAL 30 SECOND WHERE room_id = '$room_id'");
+        }
         return true;
+    } else {
+        checkQuery("UPDATE rooms SET start_time = NULL WHERE room_id = '$room_id'");
+        return false;
     }
-    return false;
 }
 
 function inRoom ($username, $room_id) {
@@ -159,7 +158,7 @@ function inRoom ($username, $room_id) {
     validateUser($username);
     validateRoom($room_id);
 
-    checkQuery("SELECT * FROM users WHERE room_id = '$room_id'");
+    checkQuery("SELECT * FROM users WHERE room_id = '$room_id' AND username = '$username'");
     if ($query_result->num_rows == 0) {
         return false;
     }

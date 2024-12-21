@@ -29,6 +29,9 @@ if ($_SERVER['REQUEST_METHOD'] == "POST") {
 
 
         // timer and players checker
+        } else if (isset($data['yanker'])) { 
+
+        // timer and players checker
         } else if (isset($data['update'])) { 
 
              // fill users array with player names
@@ -37,8 +40,8 @@ if ($_SERVER['REQUEST_METHOD'] == "POST") {
              if ($query_result->num_rows > 0)
                  while ($row = $query_result->fetch_assoc()) 
                      array_push($users, ['username' => $row['username'], 'score' => $row['score']]);
-
-            sendJSResponse(['users' => $users]);
+            
+            sendJSResponse(['users' => $users, 'question_timer' => "", 'question' => "", 'category' => "", 'answers' => "", 'question count' => ""]);
 
         // setting session as playing session
         } else if (isset($data['play'])) {
@@ -194,6 +197,7 @@ if ($_SERVER['REQUEST_METHOD'] == "POST") {
             async function updateWithServer() {
 
                 const res = await sendData({'update': true}, '<?php echo htmlspecialchars($_SERVER["PHP_SELF"]); ?>');
+                console.log(res);
 
                 const playerList = document.getElementsByClassName('players-section')[0];
                 playerList.children[0].innerHTML = '';
@@ -201,10 +205,11 @@ if ($_SERVER['REQUEST_METHOD'] == "POST") {
                 for (let i = 0; i < res.users.length; i++) {
                     let innerHTML = '<div class="player-score"> <div class="avatar"><img src="IMG/images.jpg"></div> <div class="player-info"> <h4>' + res.users[i].username + '</h4> <div class="player-bar"> <div class="player-health" style="width: ' + res.users[i].score / maxScore + '%"; background-color: ' + colors[i] + ';"></div> </div> </div> </div>';
                     if (i <= 2)
-                        playerList.children[0].innerHTML = innerHTML;
+                        playerList.children[0].innerHTML += innerHTML;
                     else
-                        playerList.children[1].innerHTML = innerHTML;
+                        playerList.children[1].innerHTML += innerHTML;
                 }
+
             }
 
             window.onload = function() {

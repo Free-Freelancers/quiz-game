@@ -17,9 +17,9 @@ if ($row = $query_result->fetch_assoc()) {
 
 // if timer started
 if (!empty($_SESSION['start_time'])) {
+        error_log('llolololo');
     if (time() > strtotime($_SESSION['start_time'])) {
         // game already started (too late)
-        error_log('llolololo');
         if ($_SESSION['playing']) {
             header('Location: ' . $base . 'page/game.php');
         } else {
@@ -38,11 +38,9 @@ if ($_SERVER['REQUEST_METHOD'] == "POST") {
         // ready button
         if (isset($data['ready'])) { 
 
-             error_log("SELECT * FROM users WHERE username = " . $_SESSION['username']);
-             checkQuery("SELECT * FROM users WHERE username = \"" . $_SESSION['username'] . "\"");
+            checkQuery("SELECT * FROM users WHERE username = \"{$_SESSION['username']}\"");
              $row = $query_result->fetch_assoc();
 
-             error_log("yay");
              if ($row['ready'] == true) {
                  // user is ready already
                  
@@ -81,7 +79,7 @@ if ($_SERVER['REQUEST_METHOD'] == "POST") {
         } else if (isset($data['update'])) { 
 
              // fill users array with player names
-             checkQuery("SELECT * FROM users WHERE room_id = " . $_SESSION['room_id']);
+             checkQuery("SELECT * FROM users WHERE room_id = {$_SESSION['room_id']}");
              $users = array();
              if ($query_result->num_rows > 0)
                  while ($row = $query_result->fetch_assoc()) 
@@ -107,10 +105,9 @@ if ($_SERVER['REQUEST_METHOD'] == "POST") {
 }
 
 function checkAllReady () {
-    $ready = false;
-    $result = checkQuery("SELECT * FROM rooms WHERE start_time IS NOT NULL AND room_id = " . $_SESSION['room_id']);
-    if ($result->num_rows > 0) {
-        $ready = true;
+    $ready = readyRoom($_SESSION['room_id']);
+    if ($ready) {
+        $result = checkQuery("SELECT * FROM rooms WHERE start_time IS NOT NULL AND room_id = {$_SESSION['room_id']}");
         $_SESSION['start_time'] = $result->fetch_assoc()['start_time'];
     } else $_SESSION['start_time'] = '';
 
@@ -198,6 +195,7 @@ function checkAllReady () {
                 console.log(new Date(deadline + 'Z').getTime());
 
                 const interval = setInterval(async function () {
+                    if (!monitorTimeCalled) return;
                     const futureTime = new Date(deadline + 'Z').getTime();
                     const now = new Date().getTime();
                     const remainingTime = futureTime - now;
@@ -238,6 +236,10 @@ function checkAllReady () {
 
                 if (res.timerStarted == true) 
                     monitorTime(res.startTime, res.url);
+                else {
+                    monitorTimeCalled = false;
+                    document.getElementsByClassName("timer")[0].innerText = "--:--";
+                }
             }
 
             window.onload = function() {

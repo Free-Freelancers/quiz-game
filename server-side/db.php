@@ -18,17 +18,5 @@ if ($conn->connect_error) {
     die("Connection failed: " . $conn->connect_error);
 }
 
-// cleanup database
-try {
-    $result = checkQuery("SELECT * FROM rooms");
-    if ($result->num_rows > 0) {
-        while ($row = $result->fetch_assoc()) {
-            if ($row['user_count'] == 0)
-                deleteRoom($row['room_id']);
-        }
-    }
-} catch (Exception $ex) {
-    die("Connection failed: " . $ex->getMessage());
-}
 ?>
 
