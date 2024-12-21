@@ -22,11 +22,13 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
        // join button
        if ($data['action'] == 'join') {
+           error_log("join");
            $room_id = $data['room_id'];
            joinRoom($username, $room_id);
 
        // host button
        } else if ($data['action'] == 'host') {
+           error_log("host");
           $room_id = hostRoom($username);
        }
 
@@ -36,7 +38,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
        $_SESSION['room_id'] = $room_id;
        $_SESSION['active'] = TRUE;
        $_SESSION['score'] = 0;
-       error_log("index to lobby");
        sendJSResponse(['status' => 'transfer', 'url' => $base . 'pages/lobby.php']);
        exit;
 
@@ -65,11 +66,11 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 <h1>Quiz Quest</h1>
                  <div class="btn-container">
                     <input placeholder="ENTER USERNAME" id="input-user" name="username">
-                    <div class="btn submit" style="width: 300px; margin-bottom: 20px;" onclick="host()">
+                    <div class="btn submit" style="width: 300px; margin-bottom: 20px;">
                         HOST
                     </div>
                     <input placeholder="ENTER ROOM ID" id="input-user" name="room_id">
-                    <div class="btn submit" style="width: 300px;" onclick="join()">
+                    <div class="btn submit" style="width: 300px;">
                         JOIN
                     </div>
                     <div class="error-message" id="error-message"></div>
@@ -121,6 +122,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 window.location.href = res.url;
             }
         }
+        document.getElementsByClassName('submit')[0].addEventListener('click', host);
+        document.getElementsByClassName('submit')[1].addEventListener('click', join);
     </script>
     </body>
 </html>

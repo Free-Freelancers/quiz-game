@@ -59,17 +59,6 @@ if ($_SERVER['REQUEST_METHOD'] == "POST") {
 
         // leave button
         } else if (isset($data['leave'])) { 
-             leaveRoom($_SESSION['username']);
-             
-             // check if it is empty to delete it
-             if (isEmptyRoom($_SESSION['room_id'])) {
-                 deleteRoom($_SESSION['room_id']);
-             }
-
-            // check if all players in the room are ready
-            else if (readyRoom($_SESSION['room_id'])) {
-                checkAllReady();
-            }
 
             // back to home
             sendJSResponse(['go_back' => true, 'url' => $base . 'server-side/logout.php']);

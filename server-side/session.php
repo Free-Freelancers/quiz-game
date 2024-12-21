@@ -6,13 +6,9 @@ session_start();
 error_reporting(E_ALL); // Report all types of errors
 ini_set('display_errors', 1); // Display errors in the browser
 
-if (isset($_SESSION['username'])) {
-error_log ($_SESSION['username']);
-}
 // lost in the time and space
 if ((isset($_SESSION['username']) && isset($_SESSION['room_id'])) ^ basename($_SERVER['SCRIPT_NAME']) != 'index.php') {
     header ("Location: {$base}server-side/logout.php");
-    error_log ("Location: {$base}server-side/logout.php");
     die();
 }
 
@@ -22,7 +18,6 @@ try {
     // confirming the user is not just a lost soul in this website
     if (isset($_SESSION['username'])) {
         if (!inRoom($_SESSION['username'], $_SESSION['room_id'])) { // DUCK OFF
-    error_log ("Location: {$base}server-side/logout.php");
            header ("Location: {$base}server-side/logout.php");
            die();
         }
@@ -31,8 +26,15 @@ try {
 
 function checkUsers () {
     try {
-        if (isset($_SESSION['username']) && inRoom($_SESSION['username'], $_SESSION['room_id'])) { 
-            checkQuery("UPDATE users SET last_active = CURRENT_TIMESTAMP() WHERE room_id = {$_SESSION['room_id']} AND username = \"{$_SESSION['username']}\"");
+        if (isset($_SESSION['username'])) {
+           if (inRoom($_SESSION['username'], $_SESSION['room_id'])) { 
+               try {
+                   validateUser($_SESSION['username']);
+                    checkQuery("UPDATE users SET last_active = CURRENT_TIMESTAMP() WHERE room_id = {$_SESSION['room_id']} AND username = \"{$_SESSION['username']}\"");
+               } catch (Exception $ex) {
+                   session_unset();
+               }
+           }
         }
         $inactiveLimit = 10; // 10 seconds
         $res = checkQuery("SELECT * FROM users");
@@ -44,6 +46,7 @@ function checkUsers () {
                 }
             }
         }
+
 
         // cleanup rooms
         $res = checkQuery("SELECT * FROM rooms");
