@@ -6,9 +6,9 @@ require '../server-side/api.php';
 require '../server-side/db.php';
 require '../server-side/session.php';
 
-$_SESSION["score"] = 0;
-$_SESSION["playing"] = false;
-$_SESSION["start_time"] = '';
+if (!isset($_SESSION["start_time"])) {
+    $_SESSION["start_time"] = '';
+}
 
 checkQuery("SELECT * FROM rooms WHERE start_time IS NOT NULL AND room_id = " . $_SESSION['room_id']);
 if ($row = $query_result->fetch_assoc()) {

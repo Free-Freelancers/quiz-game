@@ -11,11 +11,16 @@ if (empty($_SESSION['start_time'])) {
 }
 
 // if timer started
-if (time() < strtotime($_SESSION['start_time'])) {
+if (time() < strtotime($_SESSION['start_time']) - 1) {
     // to early to enter
     header('Location: ' . $base . 'server-side/logout.php');
     die();
 }
+
+if (!isset($_SESSION["score"])) {
+    $_SESSION["score"] = 0;
+}
+
 
 // request to leave or to get ready
 if ($_SERVER['REQUEST_METHOD'] == "POST") {

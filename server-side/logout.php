@@ -24,5 +24,6 @@ session_destroy();
 
 error_log("to index");
 echo ' <script type="text/javascript"> window.location.href = "' . $base . 'index.php"; </script> ';
+header("Refresh: 0");
 ?>
 
