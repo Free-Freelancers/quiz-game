@@ -88,6 +88,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 </div>   
             </div>
         </div>
+        
     <script>
         async function host () {
             const userName = document.getElementsByName("username")[0].value;

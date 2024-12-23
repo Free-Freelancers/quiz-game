@@ -6,18 +6,15 @@ require '../server-side/api.php';
 require '../server-side/db.php';
 require '../server-side/session.php';
 
-$_SESSION["score"] = 0;
+if (empty($_SESSION['start_time'])) {
+    header('Location: ' . $base . 'server-side/logout.php');
+}
 
-error_log($_SESSION['start_time']);
 // if timer started
-if (!empty($_SESSION['start_time'])) {
-    if (time() < strtotime($_SESSION['start_time'])) {
+if (time() < strtotime($_SESSION['start_time'])) {
     // to early to enter
     header('Location: ' . $base . 'server-side/logout.php');
     die();
-    }
-} else {
-    header('Location: ' . $base . 'server-side/logout.php');
 }
 
 // request to leave or to get ready
@@ -26,8 +23,20 @@ if ($_SERVER['REQUEST_METHOD'] == "POST") {
         $json = file_get_contents('php://input');
         $data = json_decode($json, true);
 
-        // leave button
-        if (isset($data['leave'])) { 
+
+        if (isset($data['update_score'])) {
+            try{
+            $username = $_SESSION['username']; // افترض أنك تستخدم الجلسة لتخزين اسم المستخدم
+            // تحديث النقاط في قاعدة البيانات
+            $query = "UPDATE users SET score = score + 1 WHERE username = '$username'";
+           checkQuery($query);
+sendJSResponse(['success' => true]);
+            }catch(Exception $e){
+                sendJSResponse(['success' => false]);
+            }
+        }
+
+       else if (isset($data['leave'])) { 
              leaveRoom($_SESSION['username']);
              
              // check if it is empty to delete it
@@ -40,20 +49,78 @@ if ($_SERVER['REQUEST_METHOD'] == "POST") {
 
 
         // timer and players checker
-        } else if (isset($data['yanker'])) { 
+        } else if (isset($data['fetch'])) { 
+
+           
+            $query = "
+            SELECT q.question_id, q.question_text, q.category_id, q.points, c.name as category_name
+            FROM questions q
+            JOIN categories c ON q.category_id = c.category_id
+            ORDER BY RAND()
+            LIMIT 10
+        ";
+        $result = checkQuery($query);
+        
+        $questions = [];
+        while ($row = $result->fetch_assoc()) {
+            $questionId = $row['question_id'];
+            
+            // جلب الإجابات المرتبطة بالسؤال
+            $answersQuery = "
+                SELECT answer_id, answer_text, is_correct
+                FROM answers
+                WHERE question_id = $questionId
+            ";
+            $answersResult = checkQuery($answersQuery);
+            
+            $answers = [];
+            while ($answerRow = $answersResult->fetch_assoc()) {
+                $answers[] = [
+                    'answer_id' => $answerRow['answer_id'],
+                    'answer_text' => $answerRow['answer_text'],
+                    'is_correct' => $answerRow['is_correct']
+                ];
+            }
+        
+            // إضافة السؤال مع الإجابات إلى المصفوفة
+            $questions[] = [
+                'question_id' => $questionId,
+                'question_text' => $row['question_text'],
+                'category_id' => $row['category_id'],
+                'points' => $row['points'],
+                'category_name' => $row['category_name'],
+                'answers' => $answers
+            ];
+        }
+        
+        // ملء مصفوفة المستخدمين بأسماء اللاعبين
+        checkQuery("SELECT * FROM users WHERE room_id = " . $_SESSION['room_id']);
+        $users = [];
+
+        
+        // إرسال الاستجابة إلى JavaScript
+        sendJSResponse([
+            'users' => $users,
+            'questions' => $questions, // تأكد من أن هذا يحتوي على الأسئلة
+            'question_timer' => "", // يمكنك تعيين قيمة المؤقت هنا
+            'question_count' => count($questions) // عدد الأسئلة
+        ]);
 
         // timer and players checker
         } else if (isset($data['update'])) { 
 
-             // fill users array with player names
-             checkQuery("SELECT * FROM users WHERE room_id = " . $_SESSION['room_id']);
-             $users = array();
-             if ($query_result->num_rows > 0)
-                 while ($row = $query_result->fetch_assoc()) 
-                     array_push($users, ['username' => $row['username'], 'score' => $row['score']]);
-            
-            sendJSResponse(['users' => $users, 'question_timer' => "", 'question' => "", 'category' => "", 'answers' => "", 'question count' => ""]);
+        // ملء مصفوفة المستخدمين بأسماء اللاعبين
+        checkQuery("SELECT * FROM users WHERE room_id = " . $_SESSION['room_id']);
+        $users = [];
 
+        
+        // إرسال الاستجابة إلى JavaScript
+        sendJSResponse([
+            'users' => $users,
+            'questions' => $questions, // تأكد من أن هذا يحتوي على الأسئلة
+            'question_timer' => "", // يمكنك تعيين قيمة المؤقت هنا
+            'question_count' => count($questions) // عدد الأسئلة
+        ]);
         // setting session as playing session
         } else if (isset($data['play'])) {
              $_SESSION['playing'] = true;
@@ -101,55 +168,8 @@ if ($_SERVER['REQUEST_METHOD'] == "POST") {
 
             <div class="players-section">
 
-                <div class="left">
-                    <div class="player-score">
-                        <div class="avatar"><img src="IMG/images.jpg"></div>
-                        <div class="player-info">
-                            <h4>Player1</h4>
-                            <div class="player-bar">
-                                <div class="player-health" style="background-color: rgb(211, 63, 63);"></div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="player-score">
-                        <div class="avatar"><img src="IMG/images.jpg"></div>
-                        <div class="player-info">
-                            <h4>Player2</h4>
-                            <div class="player-bar">
-                                <div class="player-health" style="background-color: rgb(95, 63, 211);"></div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
+                    
                 
-
-                <div class="right">
-                    
-                    <div class="player-score">
-                        <div class="avatar"><img src="IMG/images.jpg"></div>
-                        <div class="player-info">
-                            <h4>Player3</h4>
-                            <div class="player-bar">
-                                <div class="player-health" style="background-color: rgb(211, 152, 63);"></div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="player-score">
-                        <div class="avatar"><img src="IMG/images.jpg"></div>
-                        <div class="player-info">
-                            <h4>Player4</h4>
-                            <div class="player-bar">
-                                <div class="player-health" style="background-color: rgb(97, 211, 63);"></div>
-                            </div>
-                        </div>
-                    </div>
-
-                    
-                    
-                </div>
             </div>
 
             <div class="question-section">
@@ -161,16 +181,16 @@ if ($_SERVER['REQUEST_METHOD'] == "POST") {
                 <div class="time-line"></div>
 
                 <div class="question">
-                    <h1>WHAT IS COLOR OF THE SKY</h1>
+                    <h1></h1>
                 </div>
                 <div class="MCQ-section">
                     <div>
-                        <div class="btn">A.<span>blue</span> </div>
-                        <div class="btn">B. <span>red</span></div>
+                        <div class="btn">A.<span></span> </div>
+                        <div class="btn">B. <span></span></div>
                     </div>
                     <div>
-                        <div class="btn">C. <span>white</span></div>
-                        <div class="btn">D. <span>Black</span></div>
+                        <div class="btn">C. <span></span></div>
+                        <div class="btn">D. <span></span></div>
                     </div>
                 </div>
 
@@ -214,7 +234,22 @@ if ($_SERVER['REQUEST_METHOD'] == "POST") {
                 playerList.children[0].innerHTML = '';
                 playerList.children[1].innerHTML = '';
                 for (let i = 0; i < res.users.length; i++) {
-                    let innerHTML = '<div class="player-score"> <div class="avatar"><img src="IMG/images.jpg"></div> <div class="player-info"> <h4>' + res.users[i].username + '</h4> <div class="player-bar"> <div class="player-health" style="width: ' + res.users[i].score / maxScore + '%"; background-color: ' + colors[i] + ';"></div> </div> </div> </div>';
+                    let user = res.users[currentPlayerIndex];
+                let innerHTML = `
+                    <div class="player-score">
+                        <div class="avatar">
+                            <img src="IMG/images.jpg">
+                        </div>
+                        <div class="player-info">
+                            <h4>${user.username}</h4>
+                            <div class="player-bar">
+                                <div class="player-health" style="width: ${user.score / maxScore * 100}%; background-color: ${colors[currentPlayerIndex]};"></div>
+                            </div>
+                        </div>
+                    </div>`;
+                
+    // أضف innerHTML إلى عنصر معين في الصفحة
+    document.getElementById('player-container').innerHTML = innerHTML; // تأكد من أن لديك عنصر بهذا المعرف
                     if (i <= 2)
                         playerList.children[0].innerHTML += innerHTML;
                     else
@@ -226,7 +261,112 @@ if ($_SERVER['REQUEST_METHOD'] == "POST") {
             window.onload = function() {
                 updateWithServer();
                 const interval = setInterval(updateWithServer, 5000);
+                startGame();
             };
+
+
+
+let currentQuestionIndex = 0; // مؤشر السؤال الحالي
+let score = 0; // النقاط
+let questions = []; // مصفوفة لتخزين الأسئلة
+
+async function startGame() {
+    const res = await sendData({'fetch': true}, '<?php echo htmlspecialchars($_SERVER["PHP_SELF"]); ?>');
+
+    if (res.questions && res.questions.length > 0) {
+        // تخزين الأسئلة في متغير عالمي
+        questions = res.questions;
+        displayQuestion(currentQuestionIndex);
+        displayPlayerInfo(res.users); // عرض معلومات اللاعب
+    } else {
+        console.error("لا توجد أسئلة متاحة.");
+    }
+}
+
+function displayPlayerInfo(users) {
+    // افترض أن لديك متغير currentPlayerIndex لتحديد اللاعب الحالي
+    let currentPlayerIndex = 0; // يمكنك تغيير هذا إلى أي فهرس تريده
+
+    // تأكد من أن فهرس اللاعب الحالي ضمن نطاق المستخدمين
+    if (currentPlayerIndex < users.length) {
+        let user = users[currentPlayerIndex];
+        let innerHTML = `
+            <div class="player-score">
+                <div class="avatar">
+                    <img src="IMG/images.jpg" alt="${user.username}">
+                </div>
+                <div class="player-info">
+                    <h4>${user.username}</h4>
+                    <div class="player-bar">
+                        <div class="player-health" style="width: ${user.score / maxScore * 100}%; background-color: ${colors[currentPlayerIndex]};"></div>
+                    </div>
+                </div>
+            </div>`;
+        
+        // أضف innerHTML إلى عنصر معين في الصفحة
+        document.getElementById('player-container').innerHTML = innerHTML; // تأكد من أن لديك عنصر بهذا المعرف
+    }
+}
+
+function displayQuestion(index) {
+    const questionContainer = document.getElementsByClassName('question-section')[0];
+    const question = questions[index];
+
+    // تحديث عنوان السؤال
+    questionContainer.querySelector('.question-number').innerText = `Q.${index + 1}`;
+    questionContainer.querySelector('.question-type').innerText = question.category_name;
+    questionContainer.querySelector('.question h1').innerText = question.question_text;
+
+    // تحديث خيارات الإجابة
+    const mcqSection = questionContainer.querySelector('.MCQ-section');
+    mcqSection.innerHTML = ''; // مسح الخيارات السابقة
+
+    question.answers.forEach(answer => {
+        const btn = document.createElement('div');
+        btn.className = 'btn';
+        btn.innerHTML = `${answer.answer_text}`;
+        
+        // تمرير القيمة is_correct إلى checkAnswer
+        btn.onclick = () => checkAnswer(answer);
+        mcqSection.appendChild(btn);
+    });
+}
+function checkAnswer(ans) {
+    if (ans.is_correct === '1') {
+        score++; // زيادة النقاط في الذاكرة
+        updateUserScore(); // تحديث النقاط في قاعدة البيانات
+    } else {
+        console.log("إجابة خاطئة:", ans);
+    }
+
+    currentQuestionIndex++; // الانتقال إلى السؤال التالي
+
+    if (currentQuestionIndex < questions.length) {
+        displayQuestion(currentQuestionIndex); // عرض السؤال التالي
+    } else {
+        endGame(); // إنهاء اللعبة
+    }
+}
+
+async function updateUserScore() {
+    const res = await sendData({'update_score': true}, '<?php echo htmlspecialchars($_SERVER["PHP_SELF"]); ?>');
+    if (res.success) {
+        console.log("تم تحديث النقاط بنجاح.");
+    } else {
+        console.error("فشل تحديث النقاط.");
+    }
+}
+function endGame() {
+    const questionContainer = document.getElementsByClassName('question-section')[0];
+    questionContainer.innerHTML = `<h1>انتهت اللعبة!</h1><h2>نقاطك: ${score}</h2>`;
+}
+
+// استدعاء دالة بدء اللعبة عند تحميل الصفحة
+window.onload = function() {
+    startGame();
+};
+
+
         </script>
     </body>
 

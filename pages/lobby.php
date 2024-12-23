@@ -88,13 +88,17 @@ if ($_SERVER['REQUEST_METHOD'] == "POST") {
     }
 }
 
-function checkAllReady () {
+function checkAllReady() {
     $ready = readyRoom($_SESSION['room_id']);
+    $_SESSION['start_time'] = '';
     if ($ready) {
-        $result = checkQuery("SELECT * FROM rooms WHERE start_time IS NOT NULL AND room_id = {$_SESSION['room_id']}");
-        $_SESSION['start_time'] = $result->fetch_assoc()['start_time'];
-    } else $_SESSION['start_time'] = '';
-
+        $res = checkQuery("SELECT * FROM rooms WHERE room_id = {$_SESSION['room_id']}");
+        if (is_null($res->fetch_assoc()['start_time'])) {
+            $start_time = gmdate('Y-m-d H:i:s', time() + 30);
+            checkQuery("UPDATE rooms SET start_time = '$start_time' WHERE room_id = {$_SESSION['room_id']}");
+            $_SESSION['start_time'] = $start_time;
+        }
+    }
     return $ready;
 }
 ?>
@@ -177,13 +181,13 @@ function checkAllReady () {
                 console.log(deadline);
                 console.log(new Date().getTime());
                 console.log(new Date(deadline + 'Z').getTime());
-
+                const futureTime = new Date(deadline + 'Z').getTime();
                 const interval = setInterval(async function () {
                     if (!monitorTimeCalled) {
                         clearInterval(interval);
                         return;
                     }
-                    const futureTime = new Date(deadline + 'Z').getTime();
+
                     const now = new Date().getTime();
                     const remainingTime = futureTime - now;
                     let seconds = Math.floor((remainingTime % (1000 * 60)) / 1000);
@@ -200,6 +204,7 @@ function checkAllReady () {
                     } else if (remainingTime > 0) {
                         document.getElementsByClassName("timer")[0].innerText = "Good Luck!";
                     } else {
+                        clearInterval(interval);
                         const res = await sendData({'play':true}, '<?php echo htmlspecialchars($_SERVER["PHP_SELF"]); ?>');
                         console.log(res.done);
                         window.location.href = go_to;

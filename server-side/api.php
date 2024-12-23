@@ -143,9 +143,9 @@ function readyRoom ($room_id) {
     if ($query_result->num_rows == 0) {
         error_log("yeay");
         checkQuery("SELECT * FROM rooms WHERE room_id = '$room_id'");
-        if ($query_result->fetch_assoc()['start_time'] == null) {
-            checkQuery("UPDATE rooms SET start_time = CURRENT_TIMESTAMP() + INTERVAL 30 SECOND WHERE room_id = '$room_id'");
-        }
+        /*if ($query_result->fetch_assoc()['start_time'] == null) {*/
+        /*    checkQuery("UPDATE rooms SET start_time = CURRENT_TIMESTAMP() + INTERVAL 30 SECOND WHERE room_id = '$room_id'");*/
+        /*}*/
         return true;
     } else {
         checkQuery("UPDATE rooms SET start_time = NULL WHERE room_id = '$room_id'");
