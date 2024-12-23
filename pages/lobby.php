@@ -90,7 +90,6 @@ if ($_SERVER['REQUEST_METHOD'] == "POST") {
 
 function checkAllReady() {
     $ready = readyRoom($_SESSION['room_id']);
-    $_SESSION['start_time'] = '';
     if ($ready) {
         $res = checkQuery("SELECT * FROM rooms WHERE room_id = {$_SESSION['room_id']}");
         if (is_null($res->fetch_assoc()['start_time'])) {
@@ -188,7 +187,7 @@ function checkAllReady() {
                         return;
                     }
 
-                    const now = new Date().getTime();
+                    const now = Date.now();
                     const remainingTime = futureTime - now;
                     let seconds = Math.floor((remainingTime % (1000 * 60)) / 1000);
                     let minutes = Math.floor(seconds / 60);
