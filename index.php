@@ -31,10 +31,10 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             }
             error_log(time());
             error_log(strtotime($start_time));
-            error_log(($start_time));
-            if (!empty($start_time) && time() > strtotime($start_time)) {
+            if (!empty($start_time) && (time() > strtotime($start_time))) {
                 throw new Exception ('game already started (too late)');
             }
+            $_SESSION['start_time'] = $start_time;
            joinRoom($username, $room_id);
 
        // host button

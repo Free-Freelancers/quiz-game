@@ -8,7 +8,6 @@ ini_set('display_errors', 1); // Display errors in the browser
 
 // lost in the time and space
 if ((isset($_SESSION['username']) && isset($_SESSION['room_id'])) ^ basename($_SERVER['SCRIPT_NAME']) != 'index.php') {
-    error_log("logout");
     header ("Location: {$base}server-side/logout.php");
     die();
 }
@@ -19,7 +18,6 @@ try {
     // confirming the user is not just a lost soul in this website
     if (isset($_SESSION['username'])) {
         if (!inRoom($_SESSION['username'], $_SESSION['room_id'])) { // DUCK OFF
-            error_log("logout");
            header ("Location: {$base}server-side/logout.php");
            die();
         }

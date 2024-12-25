@@ -1,117 +1,214 @@
+/* Styling for the game page */
+
+body {
+    font-family: 'Arial', sans-serif;
+    background-color: #f4f4f4;
+    margin: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+}
+
+.container {
+    background-color: #fff;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    width: 80%;
+    max-width: 600px;
+    margin: 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+}
 
 .game-header {
     display: flex;
     justify-content: space-between;
     align-items: center;
-
+    padding-bottom: 15px;
+    margin-bottom: 20px;
+    border-bottom: 1px solid #eee;
 }
 
+.left-section,
 .right-section {
     display: flex;
     align-items: center;
 }
 
-
-.players-section {
-    display: flex;
-    justify-content: space-between;
-    width: 70%;
-    margin: auto;
-}
-
-.left,
-.right {
-    display: flex;
-    flex-direction: column;
-
-}
-
-.player-score {
-    display: flex;
+.right-section {
     gap: 10px;
 }
 
+.avatar {
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    overflow: hidden;
+}
 
+.avatar img {
+    width: 100%;
+    height: auto;
+}
 
-.player-info {
-    flex: 1;
+.players-section {
+    display: flex;
+    gap: 10px;
+    overflow-x: auto;
+    padding-bottom: 15px;
+    margin-bottom: 20px;
+    border-bottom: 1px solid #eee;
+}
+
+.player-score {
+    background-color: #f9f9f9;
+    border-radius: 8px;
+    padding: 10px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-shrink: 0;
+    width: fit-content;
+}
+
+.player-info h4 {
+    margin: 0 0 5px 0;
+    font-size: 16px;
 }
 
 .player-bar {
-    height: 20px;
-    width: 200px;
-    background-color: white;
+    background-color: #eee;
     border-radius: 5px;
+    height: 8px;
+    width: 100%;
+    overflow: hidden;
 }
 
 .player-health {
-    width: 50%;
     height: 100%;
-    background-color: green;
+    border-radius: 5px;
+    width: 70%; /* Example width */
+    background-color: #4CAF50; /* Example color */
+    transition: width 0.3s ease-in-out;
 }
 
 .question-section {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    flex-direction: column;
+    background-color: white;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    text-align: center;
+    position: relative; /* To position the time bar */
+    margin-bottom: 30px; /* Add some space below the question section */
 }
 
 .question-title-section {
-    width: 80%;
-    height: 90px;
-    background-color: #cccbca;
-    border-radius: 20px 20px 0 0;
     display: flex;
-    justify-content: flex-start;
-    align-items: center;
-
+    justify-content: space-between;
+    margin-bottom: 10px;
 }
 
-.time-line{
-    background-color: red;
-    width: 80%;
-    height: 5px;
+.question-number {
+    font-size: 18px;
+    font-weight: bold;
+    color: #333;
 }
 
 .question-type {
-    margin: auto;
+    font-size: 16px;
+    color: #666;
 }
 
-.question {
-    margin-top: 20px;
-    padding: 20px;
-    width: 80%;
-    height: 250px;
-    background-color: #cccbca;
-    border-radius: 20px;
-    display: flex;
+.question h1 {
+    font-size: 22px;
+    color: #333;
+    margin-bottom: 15px;
 }
 
 .MCQ-section {
     display: flex;
-   margin-top: 20px;
-   width: 80%;
-    justify-content: space-between;
-    
+    flex-direction: column;
+    gap: 10px;
 }
 
 .MCQ-section div {
-   margin-bottom: 20px;
-   flex-direction: column; 
-  
+    display: flex;
+    gap: 10px;
 }
 
-
-.divElement{
-
-    position: fixed;
-    top: 50%;
-    left: 50%;
-    -webkit-transform: translate(-50%, -50%);
-    transform: translate(-50%, -50%);
-    background-color: black;
+.btn {
+    background-color: #e0e0e0;
+    border-radius: 5px;
+    padding: 10px 15px;
+    text-align: center;
+    cursor: pointer;
+    flex-grow: 1;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+    transition: background-color 0.3s ease;
 }
 
+.btn:hover {
+    background-color: #d4d4d4;
+}
 
+.popup {
+    display: none; /* Hidden by default */
+    position: fixed; /* Stay in place */
+    z-index: 1; /* Sit on top */
+    left: 0;
+    top: 0;
+    width: 100%; /* Full width */
+    height: 100%; /* Full height */
+    overflow: auto; /* Enable scroll if needed */
+    background-color: rgba(0,0,0,0.4); /* Black w/ opacity */
+}
 
+.popup-content {
+    background-color: #fefefe;
+    margin: 15% auto; /* 15% from the top and centered */
+    padding: 20px;
+    border: 1px solid #888;
+    width: 80%; /* Could be more or less, depending on screen size */
+    border-radius: 8px;
+    position: relative;
+}
+
+.close {
+    color: #aaa;
+    float: right;
+    font-size: 28px;
+    font-weight: bold;
+}
+
+.close:hover,
+.close:focus {
+    color: black;
+    text-decoration: none;
+    cursor: pointer;
+}
+
+.confirm-btns {
+    margin-top: 20px;
+    display: flex;
+    justify-content: space-around;
+}
+
+/* New styles for time-line and time-bar */
+.question-section .time-line{
+    position: absolute;
+    bottom: 0px;
+    left: 0px;
+    height: 10px;
+    background: lightskyblue;
+}
+
+.question-section .time-bar{
+    background-color: red;
+    height: 100%;
+    position: relative;
+    text-align: center;
+    width: 100%;
+}

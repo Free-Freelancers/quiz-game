@@ -6,17 +6,19 @@ require '../server-side/api.php';
 require '../server-side/db.php';
 require '../server-side/session.php';
 
-if (!isset($_SESSION["start_time"])) {
-    $_SESSION["start_time"] = '';
-}
+$_SESSION["score"] = 0;
+$_SESSION["playing"] = false;
+$_SESSION["start_time"] = '';
 
-checkQuery("SELECT * FROM rooms WHERE start_time IS NOT NULL AND room_id = " . $_SESSION['room_id']);
+$query_result=checkQuery("SELECT * FROM rooms WHERE start_time IS NOT NULL AND room_id = " . $_SESSION['room_id']);
 if ($row = $query_result->fetch_assoc()) {
     $_SESSION['start_time'] = $row['start_time'];
 }
 
 // if timer started
 if (!empty($_SESSION['start_time'])) {
+    error_log(time());
+    error_log(strtotime($_SESSION['start_time']));
     if (time() > strtotime($_SESSION['start_time'])) {
         // game already started (too late)
             header('Location: ' . $base . 'server-side/logout.php');
@@ -31,9 +33,17 @@ if ($_SERVER['REQUEST_METHOD'] == "POST") {
         $data = json_decode($json, true);
 
         // ready button
+        if(isset($data['updatescores'])){
+
+            $username = $_SESSION['username']; 
+
+            $query = "UPDATE users SET Score =0 WHERE username = '$username'";
+           checkQuery($query);
+          return;
+        }
         if (isset($data['ready'])) { 
 
-            checkQuery("SELECT * FROM users WHERE username = \"{$_SESSION['username']}\"");
+            $query_result=checkQuery("SELECT * FROM users WHERE username = \"{$_SESSION['username']}\"");
              $row = $query_result->fetch_assoc();
 
              if ($row['ready'] == true) {
@@ -49,6 +59,8 @@ if ($_SERVER['REQUEST_METHOD'] == "POST") {
                     checkAllReady();
                     sendJSResponse(['needed' => true, 'startTime' => $_SESSION['start_time'],
                         'url' => $base . 'pages/game.php']);
+                 } else {
+                    sendJSResponse(['needed' => false]);
                  }
              }
 
@@ -62,12 +74,12 @@ if ($_SERVER['REQUEST_METHOD'] == "POST") {
         // timer and players checker
         } else if (isset($data['update'])) { 
 
-            // fill users array with player names
-            checkQuery("SELECT * FROM users WHERE room_id = {$_SESSION['room_id']}");
+            // fill users array with player names and readiness
+            $query_result=checkQuery("SELECT username, ready FROM users WHERE room_id = {$_SESSION['room_id']}");
             $users = array();
             if ($query_result->num_rows > 0)
                while ($row = $query_result->fetch_assoc()) 
-                   array_push($users, $row['username']);
+                   array_push($users, $row);
 
             // check if room start time is set and put it in start_time session variable
             $timer_started = checkAllReady();
@@ -91,13 +103,13 @@ if ($_SERVER['REQUEST_METHOD'] == "POST") {
 function checkAllReady() {
     $ready = readyRoom($_SESSION['room_id']);
     if ($ready) {
-        $res = checkQuery("SELECT * FROM rooms WHERE room_id = {$_SESSION['room_id']}");
-        if (is_null($res->fetch_assoc()['start_time'])) {
-            $start_time = gmdate('Y-m-d H:i:s', time() + 30);
-            checkQuery("UPDATE rooms SET start_time = '$start_time' WHERE room_id = {$_SESSION['room_id']}");
-            $_SESSION['start_time'] = $start_time;
-        }
+        $start_time = date('Y-m-d H:i:s', strtotime('+30 seconds'));
+        checkQuery("UPDATE rooms SET start_time = '$start_time' WHERE room_id = {$_SESSION['room_id']}");
+        $_SESSION['start_time'] = $start_time;
+    } else {
+        $_SESSION['start_time'] = '';
     }
+
     return $ready;
 }
 ?>
@@ -163,8 +175,11 @@ function checkAllReady() {
 
             async function setReady() {
                 const res = await sendData({'ready': true}, '<?php echo htmlspecialchars($_SERVER["PHP_SELF"]); ?>');
-                if (res.needed)
+                if (res.needed) {
                     updateWithServer();
+                } else {
+                    updatePlayerList();
+                }
             }
 
             async function removeUser() {
@@ -187,7 +202,7 @@ function checkAllReady() {
                         return;
                     }
 
-                    const now = Date.now();
+                    const now = new Date().getTime();
                     const remainingTime = futureTime - now;
                     let seconds = Math.floor((remainingTime % (1000 * 60)) / 1000);
                     let minutes = Math.floor(seconds / 60);
@@ -213,17 +228,9 @@ function checkAllReady() {
             }
 
             async function updateWithServer() {
-
                 const res = await sendData({'update': true}, '<?php echo htmlspecialchars($_SERVER["PHP_SELF"]); ?>');
-
-                const playerList = document.getElementsByClassName('player-list')[0];
-                playerList.innerHTML = '';
-                for (let i = 0; i < res.users.length; i++) {
-                    let n = document.createElement('div');
-                    n.className.concat("player") ;
-                    n.innerHTML = '<div class="avatar red" style="color: ' + colors[i] + '"><img src="IMG/images.jpg"></div><span class="player-name' + (i + 1) + '">' + res.users[i] + '</span>';
-                    playerList.appendChild(n);
-                }
+                
+                updatePlayerList(res.users);
 
                 if (res.timerStarted == true) 
                     monitorTime(res.startTime, res.url);
@@ -233,7 +240,20 @@ function checkAllReady() {
                 }
             }
 
-            window.onload = function() {
+            function updatePlayerList(users) {
+                const playerList = document.getElementsByClassName('player-list')[0];
+                playerList.innerHTML = '';
+                for (let i = 0; i < users.length; i++) {
+                    let n = document.createElement('div');
+                    n.className.concat("player") ;
+                    n.innerHTML = '<div class="avatar red" style="color: ' + colors[i] + '"><img src="IMG/images.jpg"></div><span class="player-name' + (i + 1) + '">' + users[i].username + '</span>' + (users[i].ready=="1" ? ' (Ready)' : '');
+                    playerList.appendChild(n);
+                }
+            }
+
+            window.onload = async function() {
+                await sendData({'updatescores': true}, '<?php echo htmlspecialchars($_SERVER["PHP_SELF"]); ?>');
+               
                 document.getElementsByClassName("timer")[0].innerText = "--:--";
 
                 updateWithServer();

@@ -21,9 +21,5 @@ if (isset($_SESSION['username']) && isset($_SESSION['room_id'])) {
 
 session_unset();
 session_destroy();
-
-error_log("to index");
-echo ' <script type="text/javascript"> window.location.href = "' . $base . 'index.php"; </script> ';
-header("Refresh: 0");
+header('Location: ' . $base . 'index.php');
 ?>
-

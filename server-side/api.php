@@ -21,7 +21,7 @@ function createRoom () {
     global $query_result;
     global $conn;
 
-    checkQuery("SELECT * FROM rooms");
+    $query_result=checkQuery("SELECT * FROM rooms");
     if ($query_result->num_rows >= 10) {
         echo "maximum rooms created.";
         return;
@@ -37,7 +37,7 @@ function deleteRoom ($room_id) {
 
     validateRoom($room_id);
 
-    checkQuery("SELECT user_count FROM rooms WHERE room_id = '$room_id'");
+    $query_result=checkQuery("SELECT user_count FROM rooms WHERE room_id = '$room_id'");
 
     if ($query_result->num_rows != 0 && $query_result->fetch_assoc()['user_count'] > 0)
         throw new Exception ("can't delete room until it's empty");
@@ -51,7 +51,7 @@ function validateNewUser ($username) {
     if (strlen($username) <= 0) {
         throw new Exception("username can't be empty string.");
     }
-    checkQuery("SELECT * FROM users WHERE username = '$username'");
+    $query_result=checkQuery("SELECT * FROM users WHERE username = '$username'");
     if ($query_result->num_rows > 0) {
         throw new Exception("username already exist.");
     }
@@ -63,7 +63,7 @@ function validateUser ($username) {
     if (strlen($username) <= 0) {
         throw new Exception("username can't be empty string.");
     }
-    checkQuery("SELECT * FROM users WHERE username = '$username'");
+    $query_result=checkQuery("SELECT * FROM users WHERE username = '$username'");
     if ($query_result->num_rows == 0) {
         throw new Exception("username does not exist.");
     }
@@ -72,7 +72,7 @@ function validateUser ($username) {
 function validateRoom ($room_id) {
     global $query_result;
 
-    checkQuery("SELECT * FROM rooms WHERE room_id = '$room_id'");
+    $query_result=checkQuery("SELECT * FROM rooms WHERE room_id = '$room_id'");
 
     if ($query_result->num_rows <= 0) {
         throw new Exception("no room with that ID.");
@@ -85,7 +85,7 @@ function joinRoom ($username, $room_id) {
     validateNewUser($username);
     validateRoom($room_id);
 
-    checkQuery("SELECT user_count FROM rooms WHERE room_id = '$room_id'");
+    $query_result=checkQuery("SELECT user_count FROM rooms WHERE room_id = '$room_id'");
 
     if ($query_result->num_rows != 0) {
         if($query_result->fetch_assoc()['user_count'] > 3)
@@ -112,7 +112,7 @@ function leaveRoom ($username) {
     
     validateUser($username);
     
-    checkQuery("SELECT * FROM users WHERE username = '$username'");
+    $query_result=checkQuery("SELECT * FROM users WHERE username = '$username'");
     $room_id = $query_result->fetch_assoc()['room_id'];
 
     if ($query_result->num_rows == 0) {
@@ -130,7 +130,7 @@ function setReadyUser ($username) {
 
     error_log("naay");
     checkQuery("UPDATE users SET ready = true WHERE username = '$username'");
-    checkQuery("SELECT * FROM users WHERE username = '$username'");
+    $query_result= checkQuery("SELECT * FROM users WHERE username = '$username'");
     $user = $query_result->fetch_assoc();
 }
 
@@ -139,8 +139,13 @@ function readyRoom ($room_id) {
 
     validateRoom($room_id);
 
-    checkQuery("SELECT * FROM users WHERE room_id = '$room_id' AND ready = false");
+    $query_result=checkQuery("SELECT * FROM users WHERE room_id = '$room_id' AND ready = false");
     if ($query_result->num_rows == 0) {
+        error_log("yeay");
+        checkQuery("SELECT * FROM rooms WHERE room_id = '$room_id'");
+        if ($query_result->fetch_assoc()['start_time'] == null) {
+            checkQuery("UPDATE rooms SET start_time = CURRENT_TIMESTAMP() + INTERVAL 30 SECOND WHERE room_id = '$room_id'");
+        }
         return true;
     } else {
         checkQuery("UPDATE rooms SET start_time = NULL WHERE room_id = '$room_id'");
@@ -154,7 +159,7 @@ function inRoom ($username, $room_id) {
     validateUser($username);
     validateRoom($room_id);
 
-    checkQuery("SELECT * FROM users WHERE room_id = '$room_id' AND username = '$username'");
+    $query_result=checkQuery("SELECT * FROM users WHERE room_id = '$room_id' AND username = '$username'");
     if ($query_result->num_rows == 0) {
         return false;
     }
@@ -175,7 +180,7 @@ function isEmptyRoom ($room_id) {
 
     validateRoom($room_id);
 
-    checkQuery("SELECT * FROM users WHERE room_id = '$room_id'");
+    $query_result=checkQuery("SELECT * FROM users WHERE room_id = '$room_id'");
     if ($query_result->num_rows == 0)
         return true;
     return false;

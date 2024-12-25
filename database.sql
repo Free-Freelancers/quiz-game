@@ -11,7 +11,6 @@ SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
 START TRANSACTION;
 SET time_zone = "+00:00";
 
-
 /*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
 /*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
 /*!40101 SET @OLD_COLLATION_CONNECTION=@@COLLATION_CONNECTION */;
@@ -234,42 +233,42 @@ CREATE TABLE `questions` (
 --
 
 INSERT INTO `questions` (`question_id`, `category_id`, `question_text`, `points`, `difficulty`, `time_limit`, `hint`) VALUES
-(1, 1, 'What is the capital of France?', 10, 'Easy', 30, NULL),
-(2, 1, 'Which is the largest planet in our solar system?', 10, 'Medium', 30, NULL),
-(3, 1, 'Who wrote \"Romeo and Juliet\"?', 10, 'Medium', 30, NULL),
-(4, 2, 'What is the longest river in the world?', 10, 'Medium', 30, NULL),
-(5, 2, 'Which continent is the Sahara Desert located in?', 10, 'Easy', 30, NULL),
-(6, 2, 'What is the smallest country in the world?', 10, 'Hard', 30, NULL),
-(7, 3, 'What is the chemical symbol for water?', 10, 'Easy', 30, NULL),
-(8, 3, 'Which gas is most abundant in Earth’s atmosphere?', 10, 'Medium', 30, NULL),
-(9, 3, 'What is the speed of light?', 20, 'Hard', 30, NULL),
-(10, 4, 'Who was the first President of the United States?', 10, 'Easy', 30, NULL),
-(11, 4, 'What year did World War II end?', 10, 'Medium', 30, NULL),
-(12, 4, 'Who was known as the Iron Lady?', 10, 'Medium', 30, NULL),
-(13, 5, 'Which country won the FIFA World Cup in 2018?', 10, 'Medium', 30, NULL),
-(14, 5, 'How many players are there in a basketball team?', 10, 'Easy', 30, NULL),
-(15, 5, 'Who holds the record for the most Olympic gold medals?', 20, 'Hard', 30, NULL),
-(16, 6, 'Who directed \"Titanic\"?', 10, 'Easy', 30, NULL),
-(17, 6, 'Which actor played Iron Man in the Marvel movies?', 10, 'Easy', 30, NULL),
-(18, 6, 'What is the highest-grossing film of all time?', 20, 'Hard', 30, NULL),
-(19, 7, 'ما هي عاصمة مصر؟', 10, 'Easy', 30, NULL),
-(20, 7, 'كم عدد الكواكب في النظام الشمسي؟', 10, 'Medium', 30, NULL),
-(21, 7, 'من هو مؤلف رواية \"البؤساء\"؟', 10, 'Hard', 30, NULL),
-(22, 8, 'ما هو أكبر محيط في العالم؟', 10, 'Easy', 30, NULL),
-(23, 8, 'ما هو أطول نهر في العالم؟', 10, 'Medium', 30, NULL),
-(24, 8, 'في أي قارة تقع جبال الألب؟', 10, 'Easy', 30, NULL),
-(25, 9, 'ما هو رمز الماء الكيميائي؟', 10, 'Easy', 30, NULL),
-(26, 9, 'ما هي وحدة قياس التيار الكهربائي؟', 10, 'Medium', 30, NULL),
-(27, 9, 'كم عدد الكروموسومات في جسم الإنسان؟', 10, 'Medium', 30, NULL),
-(28, 10, 'من كان أول رئيس لجمهورية مصر العربية؟', 10, 'Easy', 30, NULL),
-(29, 10, 'في أي عام بدأ الحملة الفرنسية على مصر؟', 10, 'Medium', 30, NULL),
-(30, 10, 'من هو صلاح الدين الأيوبي؟', 10, 'Medium', 30, NULL),
-(31, 11, 'كم عدد لاعبي فريق كرة القدم؟', 10, 'Easy', 30, NULL),
-(32, 11, 'ما هي أول دولة استضافت كأس العالم؟', 10, 'Medium', 30, NULL),
-(33, 11, 'من هو اللاعب الأكثر تسجيلاً للأهداف في التاريخ؟', 10, 'Hard', 30, NULL),
-(34, 12, 'من هو مخرج فيلم \"الأب الروحي\"؟', 10, 'Hard', 30, NULL),
-(35, 12, 'ما هو أول فيلم في عالم مارفل السينمائي؟', 10, 'Medium', 30, NULL),
-(36, 12, 'ما هو أعلى فيلم تحقيقاً للإيرادات؟', 10, 'Hard', 30, NULL);
+(1, 1, 'What is the capital of France?', 10, 'Easy', 10, NULL),
+(2, 1, 'Which is the largest planet in our solar system?', 10, 'Medium', 10, NULL),
+(3, 1, 'Who wrote \"Romeo and Juliet\"?', 10, 'Medium', 10, NULL),
+(4, 2, 'What is the longest river in the world?', 10, 'Medium', 10, NULL),
+(5, 2, 'Which continent is the Sahara Desert located in?', 10, 'Easy', 10, NULL),
+(6, 2, 'What is the smallest country in the world?', 10, 'Hard', 10, NULL),
+(7, 3, 'What is the chemical symbol for water?', 10, 'Easy', 10, NULL),
+(8, 3, 'Which gas is most abundant in Earth’s atmosphere?', 10, 'Medium', 10, NULL),
+(9, 3, 'What is the speed of light?', 20, 'Hard', 10, NULL),
+(10, 4, 'Who was the first President of the United States?', 10, 'Easy', 10, NULL),
+(11, 4, 'What year did World War II end?', 10, 'Medium', 10, NULL),
+(12, 4, 'Who was known as the Iron Lady?', 10, 'Medium', 10, NULL),
+(13, 5, 'Which country won the FIFA World Cup in 2018?', 10, 'Medium', 10, NULL),
+(14, 5, 'How many players are there in a basketball team?', 10, 'Easy', 10, NULL),
+(15, 5, 'Who holds the record for the most Olympic gold medals?', 20, 'Hard', 10, NULL),
+(16, 6, 'Who directed \"Titanic\"?', 10, 'Easy', 10, NULL),
+(17, 6, 'Which actor played Iron Man in the Marvel movies?', 10, 'Easy', 10, NULL),
+(18, 6, 'What is the highest-grossing film of all time?', 20, 'Hard', 10, NULL),
+(19, 7, 'ما هي عاصمة مصر؟', 10, 'Easy', 10, NULL),
+(20, 7, 'كم عدد الكواكب في النظام الشمسي؟', 10, 'Medium', 10, NULL),
+(21, 7, 'من هو مؤلف رواية \"البؤساء\"؟', 10, 'Hard', 10, NULL),
+(22, 8, 'ما هو أكبر محيط في العالم؟', 10, 'Easy', 10, NULL),
+(23, 8, 'ما هو أطول نهر في العالم؟', 10, 'Medium', 10, NULL),
+(24, 8, 'في أي قارة تقع جبال الألب؟', 10, 'Easy', 10, NULL),
+(25, 9, 'ما هو رمز الماء الكيميائي؟', 10, 'Easy', 10, NULL),
+(26, 9, 'ما هي وحدة قياس التيار الكهربائي؟', 10, 'Medium', 10, NULL),
+(27, 9, 'كم عدد الكروموسومات في جسم الإنسان؟', 10, 'Medium', 10, NULL),
+(28, 10, 'من كان أول رئيس لجمهورية مصر العربية؟', 10, 'Easy', 10, NULL),
+(29, 10, 'في أي عام بدأ الحملة الفرنسية على مصر؟', 10, 'Medium', 10, NULL),
+(30, 10, 'من هو صلاح الدين الأيوبي؟', 10, 'Medium', 10, NULL),
+(31, 11, 'كم عدد لاعبي فريق كرة القدم؟', 10, 'Easy', 10, NULL),
+(32, 11, 'ما هي أول دولة استضافت كأس العالم؟', 10, 'Medium', 10, NULL),
+(33, 11, 'من هو اللاعب الأكثر تسجيلاً للأهداف في التاريخ؟', 10, 'Hard', 10, NULL),
+(34, 12, 'من هو مخرج فيلم \"الأب الروحي\"؟', 10, 'Hard', 10, NULL),
+(35, 12, 'ما هو أول فيلم في عالم مارفل السينمائي؟', 10, 'Medium', 10, NULL),
+(36, 12, 'ما هو أعلى فيلم تحقيقاً للإيرادات؟', 10, 'Hard', 10, NULL);
 
 -- --------------------------------------------------------
 
@@ -407,7 +406,3 @@ ALTER TABLE `users`
   ADD CONSTRAINT `users_ibfk_1` FOREIGN KEY (`room_id`) REFERENCES `rooms` (`room_id`),
   ADD CONSTRAINT `users_ibfk_2` FOREIGN KEY (`current_question_id`) REFERENCES `questions` (`question_id`);
 COMMIT;
-
-/*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
-/*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
-/*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;

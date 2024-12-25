@@ -6,35 +6,44 @@ require '../server-side/api.php';
 require '../server-side/db.php';
 require '../server-side/session.php';
 
-if (empty($_SESSION['start_time'])) {
-    header('Location: ' . $base . 'server-side/logout.php');
-}
-
+$_SESSION["score"] = 0;
+/*
+error_log($_SESSION['start_time']);
 // if timer started
-if (time() < strtotime($_SESSION['start_time']) - 1) {
+if (!empty($_SESSION['start_time'])) {
+    if (time() < strtotime($_SESSION['start_time'])) {
     // to early to enter
     header('Location: ' . $base . 'server-side/logout.php');
     die();
+    }
+} else {
+    header('Location: ' . $base . 'server-side/logout.php');
 }
-
-if (!isset($_SESSION["score"])) {
-    $_SESSION["score"] = 0;
-}
-
-
+*/
 // request to leave or to get ready
 if ($_SERVER['REQUEST_METHOD'] == "POST") {
     try {
         $json = file_get_contents('php://input');
         $data = json_decode($json, true);
 
+        if(isset($data['updateReady'])){
 
-        if (isset($data['update_score'])) {
+            $username = $_SESSION['username']; 
+
+            $query = "UPDATE users SET Ready =0 WHERE username = '$username'";
+           checkQuery($query);
+          return;
+        }
+        else if (isset($data['update_score'])) {
             try{
-            $username = $_SESSION['username']; // افترض أنك تستخدم الجلسة لتخزين اسم المستخدم
+            $username = $_SESSION['username']; 
             // تحديث النقاط في قاعدة البيانات
             $query = "UPDATE users SET score = score + 1 WHERE username = '$username'";
            checkQuery($query);
+
+        
+
+//error_log($query);
 sendJSResponse(['success' => true]);
             }catch(Exception $e){
                 sendJSResponse(['success' => false]);
@@ -54,78 +63,63 @@ sendJSResponse(['success' => true]);
 
 
         // timer and players checker
-        } else if (isset($data['fetch'])) { 
+        } else if (isset($data['fetch'])) {
+            if (!isset($_SESSION['questions'])) {
+                $query = "
+                    SELECT q.question_id, q.question_text, q.category_id, q.points, c.name as category_name, q.time_limit
+                    FROM questions q
+                    JOIN categories c ON q.category_id = c.category_id
+                    ORDER BY RAND()
+                    LIMIT 10
+                ";
+                $result = checkQuery($query);
 
-           
-            $query = "
-            SELECT q.question_id, q.question_text, q.category_id, q.points, c.name as category_name
-            FROM questions q
-            JOIN categories c ON q.category_id = c.category_id
-            ORDER BY RAND()
-            LIMIT 10
-        ";
-        $result = checkQuery($query);
-        
-        $questions = [];
-        while ($row = $result->fetch_assoc()) {
-            $questionId = $row['question_id'];
-            
-            // جلب الإجابات المرتبطة بالسؤال
-            $answersQuery = "
-                SELECT answer_id, answer_text, is_correct
-                FROM answers
-                WHERE question_id = $questionId
-            ";
-            $answersResult = checkQuery($answersQuery);
-            
-            $answers = [];
-            while ($answerRow = $answersResult->fetch_assoc()) {
-                $answers[] = [
-                    'answer_id' => $answerRow['answer_id'],
-                    'answer_text' => $answerRow['answer_text'],
-                    'is_correct' => $answerRow['is_correct']
-                ];
+                $questions = [];
+                while ($row = $result->fetch_assoc()) {
+                    $questionId = $row['question_id'];
+
+                    $answersQuery = "
+                        SELECT answer_id, answer_text, is_correct
+                        FROM answers
+                        WHERE question_id = $questionId
+                    ";
+                    $answersResult = checkQuery($answersQuery);
+
+                    $answers = [];
+                    while ($answerRow = $answersResult->fetch_assoc()) {
+                        $answers[] = [
+                            'answer_id' => $answerRow['answer_id'],
+                            'answer_text' => $answerRow['answer_text'],
+                            'is_correct' => $answerRow['is_correct']
+                        ];
+                    }
+
+                    $questions[] = [
+                        'question_id' => $questionId,
+                        'question_text' => $row['question_text'],
+                        'category_id' => $row['category_id'],
+                        'points' => $row['points'],
+                        'category_name' => $row['category_name'],
+                        'time_limit' => $row['time_limit'], // Include time_limit
+                        'answers' => $answers
+                    ];
+                }
+                $_SESSION['questions'] = $questions;
+            } else {
+                $questions = $_SESSION['questions'];
             }
-        
-            // إضافة السؤال مع الإجابات إلى المصفوفة
-            $questions[] = [
-                'question_id' => $questionId,
-                'question_text' => $row['question_text'],
-                'category_id' => $row['category_id'],
-                'points' => $row['points'],
-                'category_name' => $row['category_name'],
-                'answers' => $answers
-            ];
-        }
-        
-        // ملء مصفوفة المستخدمين بأسماء اللاعبين
-        checkQuery("SELECT * FROM users WHERE room_id = " . $_SESSION['room_id']);
-        $users = [];
-
-        
-        // إرسال الاستجابة إلى JavaScript
-        sendJSResponse([
-            'users' => $users,
-            'questions' => $questions, // تأكد من أن هذا يحتوي على الأسئلة
-            'question_timer' => "", // يمكنك تعيين قيمة المؤقت هنا
-            'question_count' => count($questions) // عدد الأسئلة
-        ]);
-
+    
+            $users = getUsersInRoom($_SESSION['room_id']);
+            sendJSResponse([
+                'users' => $users,
+                'questions' => $questions,
+                'question_timer' => "",
+                'question_count' => count($questions)
+            ]);
         // timer and players checker
-        } else if (isset($data['update'])) { 
-
-        // ملء مصفوفة المستخدمين بأسماء اللاعبين
-        checkQuery("SELECT * FROM users WHERE room_id = " . $_SESSION['room_id']);
-        $users = [];
-
-        
-        // إرسال الاستجابة إلى JavaScript
-        sendJSResponse([
-            'users' => $users,
-            'questions' => $questions, // تأكد من أن هذا يحتوي على الأسئلة
-            'question_timer' => "", // يمكنك تعيين قيمة المؤقت هنا
-            'question_count' => count($questions) // عدد الأسئلة
-        ]);
+        }else if (isset($data['update'])) { 
+            $users = getUsersInRoom($_SESSION['room_id']);
+            sendJSResponse(['users' => $users]);
         // setting session as playing session
         } else if (isset($data['play'])) {
              $_SESSION['playing'] = true;
@@ -137,6 +131,16 @@ sendJSResponse(['success' => true]);
        error_log($ex->getMessage());
        exit;
     }
+}
+function getUsersInRoom($roomId) {
+    global $conn;
+    $query = "SELECT username, score FROM users WHERE room_id = $roomId";
+    $result = checkQuery($query);
+    $users = [];
+    while ($row = $result->fetch_assoc()) {
+        $users[] = $row;
+    }
+    return $users;
 }
 
 ?>
@@ -171,19 +175,18 @@ sendJSResponse(['success' => true]);
                 </div>
             </div>
 
-            <div class="players-section">
-
-                    
-                
+            <div class="players-section" id="player-container">
+                <!-- Players will be dynamically added here -->
             </div>
 
             <div class="question-section">
                 <div class="question-title-section">
                     <h1 class="question-number">Q.1</h4>
-                        <h1 class=question-type>GENERAL</h1>
+                    <h1 class=question-type>GENERAL</h1>
                 </div>
-                
-                <div class="time-line"></div>
+                <div class="time-line">
+                    <div class="time-bar"></div>
+                </div>
 
                 <div class="question">
                     <h1></h1>
@@ -231,37 +234,31 @@ sendJSResponse(['success' => true]);
             }
 
             async function updateWithServer() {
-
-                const res = await sendData({'update': true}, '<?php echo htmlspecialchars($_SERVER["PHP_SELF"]); ?>');
-                console.log(res);
-
-                const playerList = document.getElementsByClassName('players-section')[0];
-                playerList.children[0].innerHTML = '';
-                playerList.children[1].innerHTML = '';
-                for (let i = 0; i < res.users.length; i++) {
-                    let user = res.users[currentPlayerIndex];
-                let innerHTML = `
-                    <div class="player-score">
-                        <div class="avatar">
-                            <img src="IMG/images.jpg">
-                        </div>
-                        <div class="player-info">
-                            <h4>${user.username}</h4>
-                            <div class="player-bar">
-                                <div class="player-health" style="width: ${user.score / maxScore * 100}%; background-color: ${colors[currentPlayerIndex]};"></div>
+                    const res = await sendData({'update': true}, '<?php echo htmlspecialchars($_SERVER["PHP_SELF"]); ?>');
+                    const playerContainer = document.getElementById('player-container');
+                    playerContainer.innerHTML = '';
+                    res.users.forEach((user, index) => {
+                        let playerDiv = document.createElement('div');
+                        playerDiv.className = 'player-score';
+                        playerDiv.innerHTML = `
+                            <div class="avatar">
+                                <img src="IMG/images.jpg">
                             </div>
-                        </div>
-                    </div>`;
-                
-    // أضف innerHTML إلى عنصر معين في الصفحة
-    document.getElementById('player-container').innerHTML = innerHTML; // تأكد من أن لديك عنصر بهذا المعرف
-                    if (i <= 2)
-                        playerList.children[0].innerHTML += innerHTML;
-                    else
-                        playerList.children[1].innerHTML += innerHTML;
+                            <div class="player-info">
+                                <h4>${user.username}</h4>
+                                <span class="player-score">Score: ${user.score}</span>
+                                <div class="player-bar">
+                                    <div class="player-health" style="width: ${user.score * 10}%; background-color: ${colors[index]};"></div>
+                                </div>
+                            </div>
+                        `;
+                        playerContainer.appendChild(playerDiv);
+                    });
                 }
 
-            }
+                setInterval(updateWithServer, 1500); // Update every 1.5 seconds
+               
+
 
             window.onload = function() {
                 updateWithServer();
@@ -336,6 +333,7 @@ function displayQuestion(index) {
         mcqSection.appendChild(btn);
     });
 }
+
 function checkAnswer(ans) {
     if (ans.is_correct === '1') {
         score++; // زيادة النقاط في الذاكرة
@@ -361,14 +359,17 @@ async function updateUserScore() {
         console.error("فشل تحديث النقاط.");
     }
 }
+
 function endGame() {
-    const questionContainer = document.getElementsByClassName('question-section')[0];
-    questionContainer.innerHTML = `<h1>انتهت اللعبة!</h1><h2>نقاطك: ${score}</h2>`;
+    sendData({'updateReady': true}, '<?php echo htmlspecialchars($_SERVER["PHP_SELF"]); ?>').then(() => {
+        window.location.href = '<?php echo $base; ?>pages/score.php';
+    });
 }
 
 // استدعاء دالة بدء اللعبة عند تحميل الصفحة
 window.onload = function() {
     startGame();
+    
 };
 
 
